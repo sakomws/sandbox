@@ -2,18 +2,16 @@ replicaCount: 1
 
 image:
   tag: development
+
   pullPolicy: IfNotPresent
 
 resources:
   limits:
-   cpu: 250m
-   memory: .5Gi
+    memory: 100Mi
   requests:
-   cpu: 250m
-   memory: .5Gi
-
-zookeeper:
-  enabled: false
-
-persistence:
-  enabled: false
+    cpu: 50m
+    memory: 50Mi
+securityContext:
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000

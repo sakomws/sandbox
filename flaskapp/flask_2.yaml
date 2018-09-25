@@ -4,7 +4,7 @@ apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
   annotations:
-    downscaler/uptime: "Thu-Fri 07:00-23:30 US/Pacific"
+    downscaler/uptime: "Thu-Fri 07:00-19:00 US/Pacific"
   name: flask-v2-tutorial
   labels:
     app: flask-v2
