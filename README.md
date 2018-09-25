@@ -46,7 +46,7 @@ tiller-deploy-f44659b6c-p48hf                        1/1       Running   0      
 git clone https://github.com/sakomws/sandbox.git |  cd sandbox
 ```
 
-5. Before deploy make sure to update Downscaler [values](https://github.com/sakomws/sandbox/blob/master/downscaler/values.yaml) depending on your cluster support for RBAC:
+5. Before deploy make sure to update [values.yaml](https://github.com/sakomws/sandbox/blob/master/downscaler/values.yaml) in Downscaler chart depending on your cluster support for RBAC:
 ```
 rbac:
   create: true
