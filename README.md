@@ -1,6 +1,5 @@
 # Deploying Flask applications using kube-downscaler
-In this tutorial we will show how to deploy Kube-downscaler and test with sample
-[flask application](https://github.com/OpenGov/opendata-ops/tree/master/docs/tutorial/tutorial/k8s/flask).
+In this tutorial we will show how to deploy Kube-downscaler and test with sample application.
 
 ## What is Kube-downscaler?
 Please check  [kube-downscaler](https://github.com/hjacobs/kube-downscaler) for a detailed explanation.  
@@ -9,77 +8,24 @@ Please check  [kube-downscaler](https://github.com/hjacobs/kube-downscaler) for 
 The current version of downscaler is 0.5.
 
 ## Architecture
-The diagram below depicts how an Downscaler agent control applications.
+The diagram below depicts how a Downscaler agent control applications.
 ![Alt text](/images/architecture.png?raw=true "Kube Downscaler diagram")
 
 ## Quick Start
 Below are instructions to quickly install and configure Downscaler.  
 
 ### Prerequisites
-Make sure you have a Kubernetes cluster up and running. 
-For local installation [minikube](https://github.com/kubernetes/minikube) can be used as well. 
-Make 
-We are going to deploy application using [Helm chart](https://docs.helm.sh) and [Kubectl client](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+Make sure you have a Kubernetes cluster up and running. For local installation [minikube](https://github.com/kubernetes/minikube) can be used as well. 
+
+Install the binary releases of the Helm and Kubectl clients depending on your OS.  Please follow [Helm client](https://docs.helm.sh/using_helm/#quickstart) and [Kubectl client](https://kubernetes.io/docs/tasks/tools/install-kubectl/) for detailed instructions.
+
 
 ### Installing Downscaler
 
-1. Make sure in using right cluster:
+1. Make sure connected to right cluster:
 ```
 kubectl config current-context
 ```
-
-2. Deploy Helm into cluster:
-```
-helm init
-```
-
-3. Clone Sandbox repository:
-```
-git clone https://github.com/sakomws/sandbox.git |  cd sandbox
-```
-
-4. Deploy Downscaler:
-```
-helm install ./downscaler
-```
-
-5. Deploy Flask applications:
-```
-kubectl apply -f flaskapp/flask_1.yaml,flaskapp/flask_2.yaml
-```
-
-5. Ensure the following Kubernetes pods are up and running: kube-downscaler-* , flask-v1-tutorial-* , flask-v1-tutorial-*
-```
-kubectl get pods -n istio-system    
-```
-```
-NAME                                 READY     STATUS    RESTARTS   AGE
-flask-v1-tutorial-6b59556b55-kd2tv   1/1       Running   0          1m
-flask-v2-tutorial-575fd64689-rkf55   1/1       Running   0          1m
-kube-downscaler-55b9f8ffd8-5k9q4     1/1       Running   0          8h
-```
-
-6. Automatic sidecar:
-To set up sidecar injection, please run following script which will install Istio webhook with nginMesh customization.
-```
-nginmesh-0.7.2/install/kubernetes/install-sidecar.sh
-```
-
-7. Verify that istio-injection label is not labeled for the default namespace :
-```
-kubectl get namespace -L istio-injection
-```
-```
-NAME           STATUS        AGE       ISTIO-INJECTION
-default        Active        1h        
-istio-system   Active        1h        
-kube-public    Active        1h        
-kube-system    Active        1h
-```
-
-### Kafka deployment using Helm
-
-1. Install the binary release of the Helm client depending on your OS.  Please follow [Setup guide](https://docs.helm.sh/using_helm/#quickstart) for detailed instructions.
 
 2. Install Helm server(Tiller) in Kubernetes cluster:
 ```
@@ -95,11 +41,65 @@ NAME                                                 READY     STATUS    RESTART
 tiller-deploy-f44659b6c-p48hf                        1/1       Running   0          51m
 ```
 
-4. Run the following script to setup Kafka. It will be installed in 'kafka' namespace.  It is also possible to use existing kafka installation.
+4. Clone Sandbox repository:
+```
+git clone https://github.com/sakomws/sandbox.git |  cd sandbox
+```
+
+5. Before deploy make sure to update Downscaler charts depending on your cluster support RBAC:
+```
 
 ```
-nginmesh-0.7.2/install/kafka/install.sh
+
+6. Deploy Downscaler:
 ```
+helm install ./downscaler
+```
+7. Check the deployed release status:
+```
+helm list
+```
+```
+NAME            	REVISION	UPDATED                 	STATUS  	CHART                	APP VERSION	NAMESPACE
+bold-guppy      	1       	Tue Sep 25 02:07:58 2018	DEPLOYED	kube-downscaler-0.5.0	0.5.0      	default
+```
+
+### Deploy a Sample Application
+In this section we will deploy the Flask applications. Please see [tutorial](https://github.com/OpenGov/opendata-ops/tree/master/docs/tutorial/tutorial/k8s/flask) in OpenGov repository for more details.
+
+1. Deploy Flask applications:
+```
+kubectl apply -f https://github.com/sakomws/sandbox/blob/master/flaskapp/flask_1.yaml?raw=true,https://github.com/sakomws/sandbox/blob/master/flaskapp/flask_2.yaml?raw=true
+```
+
+2. Ensure the following Kubernetes pods are up and running: flask-v1-tutorial-* , flask-v2-tutorial-* :
+```
+kubectl get pods -n default  
+```
+```
+NAME                                 READY     STATUS    RESTARTS   AGE
+flask-v1-tutorial-6b59556b55-kd2tv   1/1       Running   0          1m
+flask-v2-tutorial-575fd64689-rkf55   1/1       Running   0          1m
+```
+
+Note: Deployments have grace period, which means Downscaler will wait 15min to take any actions after pods get started. 
+
+3. Check downscaler pod logs:
+```
+kubectl logs -f kube-downscaler-55b9f8ffd8-5k9q4  
+```
+```
+2018-09-25 18:13:56,253 INFO: Deployment default/flask-v1-tutorial within grace period (900s), not scaling down (yet)
+2018-09-25 18:13:56,253 INFO: Deployment default/flask-v2-tutorial within grace period (900s), not scaling down (yet)
+2018-09-25 18:14:01,310 INFO: Scaling down Deployment default/flask-v1-tutorial from 1 to 0 replicas (uptime: Mon-FRI 07:00-19:00 US/Eastern, downtime: never)
+2018-09-25 18:14:01,327 INFO: Scaling down Deployment default/flask-v2-tutorial from 1 to 0 replicas (uptime: Thu-Fri 07:00-19:00 US/Pacific, downtime: never)
+```
+
+
+
+
+
+
 Note: In GKE environment you may need to grant permission to default serviceaccount for cluster-wide access before install:
 
 ```
@@ -108,110 +108,6 @@ kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admi
 kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller","automountServiceAccountToken": true}}}}'
 ```
 
-5. Wait for a while and make sure all kafka and zookeeper pods are up and runnning:
-
-```
-kubectl get pods -n kafka
-```
-```
-NAME                   READY     STATUS    RESTARTS   AGE
-my-kafka-kafka-0       1/1       Running   1          15m
-my-kafka-kafka-1       1/1       Running   0          13m
-my-kafka-kafka-2       1/1       Running   0          12m
-my-kafka-zookeeper-0   1/1       Running   0          15m
-my-kafka-zookeeper-1   1/1       Running   0          14m
-my-kafka-zookeeper-2   1/1       Running   0          14m
-testclient             1/1       Running   0          15m
-```
-6. Check the deployed release status:
-
-```
-helm list
-```
-```
-NAME    	         REVISION	         UPDATED                       	STATUS  	    CHART      	  NAMESPACE
-my-kafka	           1           Tue Mar 27 18:45:18 2018	          DEPLOYED  	 kafka-0.4.7  	   kafka
-```
-
-7. Set up  topic named "nginmesh" by running below script:
-
-```
-nginmesh-0.7.2/tools/kafka-add-topics.sh nginmesh
-```
-8. View created topic by running below script:
-
-```
-nginmesh-0.7.2/tools/kafka-list-topics.sh
-```
-```
-nginmesh
-```
-
-### Deploy a Sample Application
-In this section we deploy the Bookinfo application, which is taken from the Istio samples. Please see [Bookinfo](https://istio.io/docs/guides/bookinfo.html)  for more details.
-
-1. Label the default namespace with istio-injection=enabled:
-
-```
-kubectl label namespace default istio-injection=enabled
-```
-
-2. Deploy the application:
-
-```
-kubectl apply -f  nginmesh-0.7.2/samples/bookinfo/kube/bookinfo.yaml
-```
-
-3. Confirm that all application services are deployed: productpage, details, reviews, ratings:
-
-```
-kubectl get services
-```
-```
-NAME                       CLUSTER-IP   EXTERNAL-IP   PORT(S)              AGE
-details                    10.0.0.31    <none>        9080/TCP             6m
-kubernetes                 10.0.0.1     <none>        443/TCP              7d
-productpage                10.0.0.120   <none>        9080/TCP             6m
-ratings                    10.0.0.15    <none>        9080/TCP             6m
-reviews                    10.0.0.170   <none>        9080/TCP             6m
-```
-
-4. Confirm that all application pods are running --details-v1-* , productpage-v1-* , ratings-v1-* , reviews-v1-* , reviews-v2-* and reviews-v3-* :
-```
-kubectl get pods
-```
-```
-NAME                                        READY     STATUS    RESTARTS   AGE
-details-v1-1520924117-48z17                 2/2       Running   0          6m
-productpage-v1-560495357-jk1lz              2/2       Running   0          6m
-ratings-v1-734492171-rnr5l                  2/2       Running   0          6m
-reviews-v1-874083890-f0qf0                  2/2       Running   0          6m
-reviews-v2-1343845940-b34q5                 2/2       Running   0          6m
-reviews-v3-1813607990-8ch52                 2/2       Running   0          6m
-```
-
-5. Get the public IP of the Istio Ingress controller. If the cluster is running in an environment that supports external load balancers:
-
-```
-kubectl get svc -n istio-system | grep -E 'EXTERNAL-IP|istio-ingress'
-```
-
-OR
-
-```
-kubectl get ingress -o wide       
-```
-
-6. Open the Bookinfo application in a browser using the following link:
-```
-http://<Public-IP-of-the-Ingress-Controller>/productpage
-```
-
-Note: For E2E routing rules and performace testing you could refer to [E2E Test](istio/tests/README.md).
-
-### Demo nginMesh streaming using Graylog
-1. [Demo Graylog](istio/release/demo/graylog/README.md) Please, refer for Graylog integration with nginMesh.
-2. [Demo KSQL](istio/release/demo/ksql/README.md) Please, refer for KSQL integration with nginMesh.
 
 ### Uninstalling the Application
 1. To uninstall application, run:
@@ -221,41 +117,36 @@ Note: For E2E routing rules and performace testing you could refer to [E2E Test]
 ```
 
 
-### Uninstalling Istio
-1. To uninstall the Istio core components:
-
+### Uninstalling Downscaler
+1. Check Downscaler release name:
 ```
-kubectl delete -f istio-0.7.1/install/kubernetes/istio.yaml
+helm  list
 ```
-
-
-2. To uninstall the initializer, run:
-
 ```
-nginmesh-0.7.2/install/kubernetes/delete-sidecar.sh
+NAME            	REVISION	UPDATED                 	STATUS  	CHART                	APP VERSION	NAMESPACE
+bold-guppy      	1       	Tue Sep 25 02:07:58 2018	DEPLOYED	kube-downscaler-0.5.0	0.5.0      	default
 ```
-
-### Uninstalling Kafka
-
-1. Uninstall Kafka:
-
+2. Delete Downscaler release from cluster:
 ```
-nginmesh-0.7.2/install/kafka/uninstall.sh
-``` 
-
-2. Delete Tiller deployment:
+helm delete bold-guppy
+```
+3. Delete Tiller deployment:
 
 ```
 kubectl delete deployment tiller-deploy --namespace kube-system
 ```
 
- 
-
-
 ## Limitations
-nginMesh has the following limitations:
-* TCP and gRPC traffic is not supported.
-* Quota Check is not supported.
-* Only Kubernetes is supported.
+Currently, still in testing phase, will be updated later.
 
-All sidecar-related limitations and supported traffic management rules are described [here](istio/agent).
+## Authors
+
+* **Opengov Devops team** 
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+## Acknowledgments
+
+* Thanks to [Kube-downscaler](https://github.com/hjacobs/kube-downscaler) project authored by [Henning Jacobs](https://github.com/hjacobs)
