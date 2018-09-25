@@ -1,3 +1,4 @@
+
 # Helm cmds
 
 ## Create new chart:
@@ -10,7 +11,7 @@ metadata:
   name: {{.Release.Name}}-configmap
 data:
   myvalue: "Hello World"
-  
+
 # Prints all Kube resources uploaded to tiller:
 helm get manifest full-coral(release name)
 
@@ -67,9 +68,9 @@ default "tea"
 repeat N
 indent N "k:v"
 title: Case function, make 1st letter big
-|- : declare multiline string in YAML, 
-tuple: 
-List-like collection of fix size and arbitrary data types. 
+|- : declare multiline string in YAML,
+tuple:
+List-like collection of fix size and arbitrary data types.
 To make list inside template and iterate over it.
 range: Can be used to iterate over k/v collections like map or dict, or tuple.
 
@@ -95,9 +96,9 @@ To overrite livenessProbe handler from exec to httpGet:
 --set livenessProbe.exec.command=[cat,docroot/CHANGELOG.txt]
 
 To delete the livenessProbe.httpGet, because K8s supports only 1 Probe handler:
-helm install stable/drupal 
---set image=my-registry/drupal:0.1.0 
---set livenessProbe.exec.command=[cat,docroot/CHANGELOG.txt] 
+helm install stable/drupal
+--set image=my-registry/drupal:0.1.0
+--set livenessProbe.exec.command=[cat,docroot/CHANGELOG.txt]
 --set livenessProbe.httpGet=null
 
 # Operators and funcs
@@ -120,7 +121,7 @@ block: declares special kind of fillable template area
  #default case
 {{end}}
 
-Control structures can execute entire pipeline, not just evaluate a value. 
+Control structures can execute entire pipeline, not just evaluate a value.
 Pipeline is false if the value is:
 -boolean false
 -numeric zero
@@ -233,3 +234,8 @@ If we want YAML processor to strip off the trailing newline, add
 a - after the | :
 
 All inline styles must be on one line
+
+
+# sandbox
+Chart name should use lower case and nums and start w letter
+Hyphen is allowed, but tricky

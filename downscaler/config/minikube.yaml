@@ -1,0 +1,19 @@
+replicaCount: 1
+
+image:
+  tag: development
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+   cpu: 250m
+   memory: .5Gi
+  requests:
+   cpu: 250m
+   memory: .5Gi
+
+zookeeper:
+  enabled: false
+
+persistence:
+  enabled: false
