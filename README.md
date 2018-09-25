@@ -1,6 +1,6 @@
 # Helm cmds
 
-# Create new chart:
+## Create new chart:
 helm create mychart
 
 # Add file in /templates called mychart/templates/configmap.yaml:
@@ -181,5 +181,55 @@ helpers.tpl: default loc for template partials
 Pass scope to temp:
  {{- template "mychart.labels" . }}
 
+=====
+Charts must be smaller than 1mb for Kube obj.
+Some files  cannot be accessed through .Files obj for sec reason:
+-files in templates/
+-files excluded in .helmignore
 
+Subcharts:
+-Considered stand-alone, never explicitly depen on parent chart
+-Subchart cannot acces values of its parent
+-Parent chart can override values for subcharts
+-Helm has concept of global values that can accessed by all charts
 
+--
+cd mychart/charts
+helm create mysubchart
+rm -rf mysubchart/templates/*.*
+
+values.yaml in mychart/charts/mysubchart
+dessert: cake
+
+New configmap template in:
+mychart/charts/mysubchart/templates/configmap.yaml
+
+helm install --dry-run --debug mychart/charts/mysubchart
+!!str
+!!int
+3 'inline' ways to declare str:
+w1: bare words
+w2: "double quoted str"
+w3: 'sing quoted str'
+
+Multiline str:
+coffe: |
+ sako
+ maka
+ tako
+
+# Inject content of file into template:
+use {{.Files.Get "Filename"}}
+use {{ include "Template" . }}
+
+# Insert static file is todo smt. like this:
+myfile: |
+{{.Files.Get "myfile.txt" | indent 2}}
+
+# Folded multi-line str
+Represent YAML w multi lines, treated as 1 long line when interpreted.
+
+If we want YAML processor to strip off the trailing newline, add
+a - after the | :
+
+All inline styles must be on one line
