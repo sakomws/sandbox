@@ -26,6 +26,7 @@ Install the binary releases of the Helm and Kubectl clients depending on your OS
 ```
 kubectl config current-context
 ```
+
 2. Create new namespace 'opendata' if not exist, and set as default for context being used:
 ```
 kubectl config set-context minikube --namespace=opendata
@@ -35,8 +36,8 @@ kubectl config set-context minikube --namespace=opendata
 ```
 helm init
 ```
-4. Make sure Tiller is up and running:
 
+4. Make sure Tiller is up and running:
 ```
 kubectl get pods --namespace kube-system
 ```
@@ -61,6 +62,7 @@ Note: In case RBAC is active new service account will be created for Downscaler 
 ```
 helm install ./downscaler
 ```
+
 8. Check the deployed release status:
 ```
 helm list
@@ -69,6 +71,7 @@ helm list
 NAME            	REVISION	UPDATED                 	STATUS  	CHART                	APP VERSION	NAMESPACE
 bold-guppy      	1       	Tue Sep 25 02:07:58 2018	DEPLOYED	kube-downscaler-0.5.0	0.5.0      	default
 ```
+
 9. Check downscaler pod is up and running:
 ```
 kubectl get pods
@@ -77,12 +80,14 @@ kubectl get pods
 NAME                                               READY     STATUS    RESTARTS   AGE
 fantastic-chimp-kube-downscaler-7f58c6b5b7-rnglz   1/1       Running   0          6m
 ```
+
 10. Check Kubernetes event logs, to make sure of successful deployment of downscaler:
 ```
 kubectl get events -w -n opendata
 ```
 
 ### Deploy Sample Applications
+
 In this section we will deploy the Flask applications. Please see [tutorial](https://github.com/OpenGov/opendata-ops/tree/master/docs/tutorial/tutorial/k8s/flask) in opendata-ops repository under OpenGov organization for more details.
 
 1. Deploy Flask applications:
@@ -100,7 +105,6 @@ NAME                                 READY     STATUS    RESTARTS   AGE
 flask-v1-tutorial-6b59556b55-kd2tv   1/1       Running   0          1m
 flask-v2-tutorial-575fd64689-rkf55   1/1       Running   0          1m
 ```
-
 Note: Deployments have grace period, which means Downscaler will wait 15min to take any actions after pods get started. 
 
 3. Check downscaler pod logs:
@@ -115,6 +119,7 @@ kubectl logs -f kube-downscaler-55b9f8ffd8-5k9q4 -n opendata
 ```
 
 ### Uninstalling Sample Applications
+
 1. To uninstall applications, run:
 ```
 kubectl delete -f flaskapp/flask_1.yaml
@@ -123,6 +128,7 @@ kubectl delete -f flaskapp/flask_2.yaml
 
 
 ### Uninstalling Downscaler
+
 1. Check Downscaler release name:
 ```
 helm  list
@@ -141,6 +147,7 @@ helm delete bold-guppy
 ```
 kubectl delete deployment tiller-deploy --namespace kube-system
 ```
+
 4. Delete namespace 'opendata':
 ```
 kubectl delete ns opendata
@@ -148,6 +155,7 @@ kubectl delete ns opendata
 Warning: Make sure, namespace does not have other pods deployed.
 
 ## Limitations
+
 Still in testing phase, will be updated later.
 
 ## Authors
@@ -160,4 +168,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-* Thanks to [Kube-downscaler](https://github.com/hjacobs/kube-downscaler) project authored by [Henning Jacobs](https://github.com/hjacobs)
+Thanks to [Kube-downscaler](https://github.com/hjacobs/kube-downscaler) project authored by [Henning Jacobs](https://github.com/hjacobs)
