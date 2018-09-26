@@ -1,38 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{.Values.name}}
+  name: {{ template "downscaler.fullname" . }}
+  namespace: {{ .Values.namespace }}
   labels:
-    application: {{.Values.application}}
+    type: deployment
+    app: {{ template "downscaler.fullname" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      application: {{.Values.application}}
+      app: {{ template "downscaler.fullname" . }}
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        application: {{.Values.application}}
+        app: {{ template "downscaler.fullname" . }}
         release: {{ .Release.Name }}
     spec:
-      serviceAccountName: {{.Values.serviceAccountName}}
+      serviceAccountName: {{ if .Values.rbac.create }}{{ template "downscaler.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ template "downscaler.fullname" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           args:
           - --interval={{ .Values.interval }}
-          - --namespace={{.Values.namespace }}
+          - --namespace={{ .Values.namespace }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
-            limits:
-              memory: 100Mi
-            requests:
-              cpu: 5m
-              memory: 50Mi
-          securityContext:
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 1000
+{{ toYaml .Values.resources | indent 12 }}

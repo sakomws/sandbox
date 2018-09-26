@@ -1,6 +1,13 @@
-apiVersion: v1
-appVersion: "0.5.0"
-description: OpenGov Kubernetes resources
-home: https://github.com/sakomws/sandbox
 name: kube-downscaler
 version: 0.5.0
+apiVersion: v1
+appVersion: 0.5.0
+description: OpenGov Kubernetes sandbox scheduler
+keywords:
+- sandbox
+- scheduled lifecycle
+home: https://www.opengov.com
+sources:
+- https://github.com/hjacobs/kube-downscaler
+maintainers:
+- name: OpenGov Devops Team

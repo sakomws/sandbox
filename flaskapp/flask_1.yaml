@@ -6,6 +6,7 @@ metadata:
   annotations:
     downscaler/uptime: "Mon-Fri 07:00-19:00 US/Eastern"
   name: flask-v1-tutorial
+  namespace: opendata
   labels:
     app: flask-v1
 spec:
@@ -39,6 +40,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: flask-v1-tutorial
+  namespace: opendata
 spec:
   # this determines how to access the service.
   # a NodePort fixes a static port on the host machine
