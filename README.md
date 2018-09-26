@@ -97,6 +97,11 @@ kubectl logs -f kube-downscaler-55b9f8ffd8-5k9q4
 2018-09-25 18:14:01,327 INFO: Scaling down Deployment default/flask-v2-tutorial from 1 to 0 replicas (uptime: Thu-Fri 07:00-19:00 US/Pacific, downtime: never)
 ```
 
+4. Check Kubernetes event logs, to make sure of successful deployment:
+```
+kubectl get events -w
+```
+
 ### Uninstalling Sample Applications
 1. To uninstall applications, run:
 ```
